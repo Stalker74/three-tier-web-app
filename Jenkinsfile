@@ -38,25 +38,25 @@ spec:
         stage('Docker Build') {
             steps {
                 container('docker') {
-                    sh "docker build -t ${ECR_WEB}:${IMAGE_TAG} ./WebLayer"
-                    sh "docker build -t ${ECR_APP}:${IMAGE_TAG} ./ApplicationLayer"
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
+                        sh """
+                            apk add --no-cache aws-cli
+                            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+                            docker build -t ${ECR_WEB}:${IMAGE_TAG} ./WebLayer
+                            docker build -t ${ECR_APP}:${IMAGE_TAG} ./ApplicationLayer
+                        """
+                    }
                 }
             }
         }
 
         stage('Push to ECR') {
             steps {
-                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
-                    container('kubectl') {
-                        sh "aws ecr get-login-password --region ${AWS_REGION} > /tmp/ecr-pass"
-                    }
-                    container('docker') {
-                        sh """
-                            cat /tmp/ecr-pass | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
-                            docker push ${ECR_WEB}:${IMAGE_TAG}
-                            docker push ${ECR_APP}:${IMAGE_TAG}
-                        """
-                    }
+                container('docker') {
+                    sh """
+                        docker push ${ECR_WEB}:${IMAGE_TAG}
+                        docker push ${ECR_APP}:${IMAGE_TAG}
+                    """
                 }
             }
         }
