@@ -54,7 +54,17 @@ resource "aws_iam_user_policy" "jenkins_ecr" {
     Version = "2012-10-17"
     Statement = [{
       Effect   = "Allow"
-      Action   = ["ecr:*", "eks:DescribeCluster"]
+      Action   = [
+        "ecr:GetAuthorizationToken",
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:PutImage",
+        "ecr:InitiateLayerUpload",
+        "ecr:UploadLayerPart",
+        "ecr:CompleteLayerUpload",
+        "ecr:BatchGetImage",
+        "ecr:GetDownloadUrlForLayer",
+        "eks:DescribeCluster"
+      ]
       Resource = "*"
     }]
   })

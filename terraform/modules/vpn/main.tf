@@ -1,3 +1,13 @@
+resource "aws_cloudwatch_log_group" "vpn" {
+  name              = "/aws/vpn/dev-team"
+  retention_in_days = 30
+}
+
+resource "aws_cloudwatch_log_stream" "vpn" {
+  name           = "connections"
+  log_group_name = aws_cloudwatch_log_group.vpn.name
+}
+
 resource "aws_ec2_client_vpn_endpoint" "main" {
   description            = "Dev Team VPN"
   server_certificate_arn = var.server_cert_arn
@@ -10,7 +20,9 @@ resource "aws_ec2_client_vpn_endpoint" "main" {
   }
 
   connection_log_options {
-    enabled = false
+    enabled               = true
+    cloudwatch_log_group  = aws_cloudwatch_log_group.vpn.name
+    cloudwatch_log_stream = aws_cloudwatch_log_stream.vpn.name
   }
 }
 

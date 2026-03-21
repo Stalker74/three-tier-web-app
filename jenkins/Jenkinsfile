@@ -15,6 +15,10 @@ pipeline {
       """
     }
   }
+  environment {
+    IMAGE_TAG = "${env.GIT_COMMIT[0..6]}"
+    ECR_REGISTRY = "447777058729.dkr.ecr.us-east-1.amazonaws.com"
+  }
   triggers {
     githubPullRequests()
   }
@@ -22,7 +26,10 @@ pipeline {
     stage('Build') {
       steps {
         container('agent') {
-          sh 'docker build -t dev-app .'
+          sh '''
+            docker build -t $ECR_REGISTRY/three-tier-web:$IMAGE_TAG -f WebLayer/Dockerfile WebLayer/
+            docker build -t $ECR_REGISTRY/three-tier-app:$IMAGE_TAG -f ApplicationLayer/Dockerfile ApplicationLayer/
+          '''
         }
       }
     }
@@ -33,15 +40,39 @@ pipeline {
         }
       }
     }
+    stage('Push') {
+      steps {
+        container('agent') {
+          sh '''
+            aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $ECR_REGISTRY
+            docker push $ECR_REGISTRY/three-tier-web:$IMAGE_TAG
+            docker push $ECR_REGISTRY/three-tier-app:$IMAGE_TAG
+          '''
+        }
+      }
+    }
     stage('Deploy') {
       steps {
         container('agent') {
           sh '''
             aws eks update-kubeconfig --region us-east-1 --name dev-eks-cluster
-            kubectl apply -f k8s/app/
+            sed -i "s|\${IMAGE_TAG}|$IMAGE_TAG|g" k8s/app/three-tier-web-app/k8s/web-deployment.yaml
+            sed -i "s|\${IMAGE_TAG}|$IMAGE_TAG|g" k8s/app/three-tier-web-app/k8s/app-deployment.yaml
+            kubectl apply -f k8s/app/three-tier-web-app/k8s/
           '''
         }
       }
+    }
+  }
+  post {
+    success {
+      echo "Pipeline succeeded — Image tag: ${IMAGE_TAG}"
+    }
+    failure {
+      echo "Pipeline FAILED — Branch: ${env.BRANCH_NAME}, Tag: ${IMAGE_TAG}"
+    }
+    always {
+      cleanWs()
     }
   }
 }

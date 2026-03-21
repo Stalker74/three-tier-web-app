@@ -3,11 +3,12 @@ resource "aws_eks_cluster" "main" {
   role_arn = var.cluster_role_arn
   version  = "1.29"
 
+  enabled_cluster_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
+
   vpc_config {
     subnet_ids              = var.private_subnet_ids
     endpoint_private_access = true
-    endpoint_public_access  = true
-    public_access_cidrs     = ["0.0.0.0/0"]
+    endpoint_public_access  = false
   }
 }
 
