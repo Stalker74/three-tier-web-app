@@ -76,10 +76,6 @@ pipeline {
     }
   }
 }
- out.
-Request timed out.
-
-Ping statistics for 10.0.1.221:
     Packets: Sent = 4, Received = 0, Lost = 4 (100% loss),
 PS C:\teraform\EKS Project\terraform> aws ec2 describe-load-balancers --query "LoadBalancers[?contains(DNSName,'jenkins')].{SG:SecurityGroups,DNS:DNSName}" --output table
 >>
