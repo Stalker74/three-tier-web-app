@@ -18,9 +18,10 @@ pipeline {
   environment {
     IMAGE_TAG = "${env.GIT_COMMIT[0..6]}"
     ECR_REGISTRY = "447777058729.dkr.ecr.us-east-1.amazonaws.com"
+    AWS_DEFAULT_REGION = "us-east-1"
   }
   triggers {
-    githubPullRequests()
+    pollSCM('H/5 * * * *')
   }
   stages {
     stage('Build') {
@@ -36,7 +37,10 @@ pipeline {
     stage('Test') {
       steps {
         container('agent') {
-          sh 'echo "Run tests here"'
+          sh '''
+            docker run --rm $ECR_REGISTRY/three-tier-app:$IMAGE_TAG python -m pytest tests/ || true
+            docker run --rm $ECR_REGISTRY/three-tier-web:$IMAGE_TAG python -m pytest tests/ || true
+          '''
         }
       }
     }
@@ -56,9 +60,9 @@ pipeline {
         container('agent') {
           sh '''
             aws eks update-kubeconfig --region us-east-1 --name dev-eks-cluster
-            sed -i "s|\${IMAGE_TAG}|$IMAGE_TAG|g" k8s/app/three-tier-web-app/k8s/web-deployment.yaml
-            sed -i "s|\${IMAGE_TAG}|$IMAGE_TAG|g" k8s/app/three-tier-web-app/k8s/app-deployment.yaml
-            kubectl apply -f k8s/app/three-tier-web-app/k8s/
+            IMAGE_TAG=$IMAGE_TAG
+            cat k8s/app/three-tier-web-app/k8s/web-deployment.yaml | sed "s|IMAGE_TAG_PLACEHOLDER|$IMAGE_TAG|g" | kubectl apply -f -
+            cat k8s/app/three-tier-web-app/k8s/app-deployment.yaml | sed "s|IMAGE_TAG_PLACEHOLDER|$IMAGE_TAG|g" | kubectl apply -f -
           '''
         }
       }
@@ -76,11 +80,6 @@ pipeline {
     }
   }
 }
-    Packets: Sent = 4, Received = 0, Lost = 4 (100% loss),
-PS C:\teraform\EKS Project\terraform> aws ec2 describe-load-balancers --query "LoadBalancers[?contains(DNSName,'jenkins')].{SG:SecurityGroups,DNS:DNSName}" --output table
->>
-
-aws.exe: [ERROR]: argument operation: Found invalid choice 'describe-load-balancers'
 
 
 usage: aws [options] <command> <subcommand> [<subcommand> ...] [parameters]
