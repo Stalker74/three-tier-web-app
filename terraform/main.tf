@@ -1,3 +1,11 @@
+terraform {
+  backend "s3" {
+    bucket = "447777058729-terraform-state"
+    key    = "eks-project/terraform.tfstate"
+    region = "us-east-1"
+  }
+}
+
 provider "aws" {
   region = var.aws_region
 }
