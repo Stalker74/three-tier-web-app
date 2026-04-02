@@ -5,6 +5,7 @@ pipeline {
         apiVersion: v1
         kind: Pod
         spec:
+          serviceAccountName: jenkins
           nodeSelector:
             role: jenkins-agent
           containers:
