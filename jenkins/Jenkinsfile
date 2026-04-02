@@ -38,6 +38,7 @@ pipeline {
       steps {
         container('agent') {
           sh '''
+            sleep 10
             docker build -t $ECR_REGISTRY/three-tier-web:$IMAGE_TAG -f WebLayer/Dockerfile WebLayer/
             docker build -t $ECR_REGISTRY/three-tier-app:$IMAGE_TAG -f ApplicationLayer/Dockerfile ApplicationLayer/
           '''
