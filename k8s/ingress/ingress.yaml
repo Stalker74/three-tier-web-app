@@ -11,7 +11,7 @@ metadata:
     alb.ingress.kubernetes.io/success-codes: "200,302"
 spec:
   rules:
-    - host: jenkins.domain.com
+    - host: jenkins.volo.pk
       http:
         paths:
           - path: /

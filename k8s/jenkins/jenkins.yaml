@@ -9,7 +9,7 @@ metadata:
   name: jenkins
   namespace: jenkins
   annotations:
-    eks.amazonaws.com/role-arn: arn:aws:iam::447777058729:role/dev-eks-cluster-jenkins-irsa
+    eks.amazonaws.com/role-arn: arn:aws:iam::175200623112:role/dev-eks-cluster-jenkins-irsa
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

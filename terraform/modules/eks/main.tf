@@ -23,6 +23,16 @@ resource "aws_iam_openid_connect_provider" "eks" {
   url             = aws_eks_cluster.main.identity[0].oidc[0].issuer
 }
 
+resource "aws_security_group_rule" "eks_vpn_access" {
+  type              = "ingress"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  cidr_blocks       = ["172.16.0.0/22", "10.0.0.0/16"]
+  security_group_id = aws_eks_cluster.main.vpc_config[0].cluster_security_group_id
+  description       = "Allow kubectl from VPN clients and VPC"
+}
+
 # Node Group: Jenkins + App workloads
 resource "aws_eks_node_group" "jenkins_app" {
   cluster_name    = aws_eks_cluster.main.name
@@ -32,9 +42,9 @@ resource "aws_eks_node_group" "jenkins_app" {
   instance_types  = ["t3.small"]
 
   scaling_config {
-    desired_size = 2
+    desired_size = 1
     min_size     = 1
-    max_size     = 4
+    max_size     = 2
   }
 
   labels = { role = "jenkins-app" }
@@ -51,7 +61,7 @@ resource "aws_eks_node_group" "jenkins_agents" {
   scaling_config {
     desired_size = 1
     min_size     = 1
-    max_size     = 6
+    max_size     = 2
   }
 
   labels = { role = "jenkins-agent" }

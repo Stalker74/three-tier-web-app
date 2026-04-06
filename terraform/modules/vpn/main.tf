@@ -26,14 +26,14 @@ resource "aws_ec2_client_vpn_endpoint" "main" {
   }
 }
 
-resource "aws_ec2_client_vpn_network_association" "main" {
+resource "aws_ec2_client_vpn_network_association" "private_1a" {
   client_vpn_endpoint_id = aws_ec2_client_vpn_endpoint.main.id
-  subnet_id              = var.public_subnet_id
+  subnet_id              = var.private_subnet_id_1a
 }
 
-resource "aws_ec2_client_vpn_network_association" "private" {
+resource "aws_ec2_client_vpn_network_association" "private_1b" {
   client_vpn_endpoint_id = aws_ec2_client_vpn_endpoint.main.id
-  subnet_id              = var.private_subnet_id
+  subnet_id              = var.private_subnet_id_1b
 }
 
 resource "aws_ec2_client_vpn_authorization_rule" "all" {

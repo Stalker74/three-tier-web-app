@@ -14,7 +14,7 @@ module "vpc" {
   enable_dns_hostnames = true
 
   private_subnet_tags = {
-    "kubernetes.io/role/internal-elb" = "1"
+    "kubernetes.io/role/internal-elb"           = "1"
     "kubernetes.io/cluster/${var.cluster_name}" = "owned"
   }
 
@@ -22,3 +22,4 @@ module "vpc" {
     "kubernetes.io/role/elb" = "1"
   }
 }
+

@@ -16,9 +16,11 @@ variable "vpc_name" {
 variable "server_cert_arn" {
   description = "ACM ARN for VPN server certificate"
   type        = string
+  default     = ""
 }
 
 variable "client_cert_arn" {
   description = "ACM ARN for VPN client certificate"
   type        = string
+  default     = ""
 }
