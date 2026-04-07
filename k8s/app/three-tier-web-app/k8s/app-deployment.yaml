@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: 526247032255.dkr.ecr.us-east-1.amazonaws.com/three-tier-app:IMAGE_TAG_PLACEHOLDER
+          image: 175200623112.dkr.ecr.us-east-1.amazonaws.com/three-tier-app:IMAGE_TAG_PLACEHOLDER
           ports:
             - containerPort: 4000
           env:

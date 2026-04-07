@@ -7,7 +7,7 @@ pipeline {
         spec:
           serviceAccountName: jenkins
           nodeSelector:
-            role: jenkins-agent
+            role: jenkins-app
           containers:
           - name: agent
             image: 175200623112.dkr.ecr.us-east-1.amazonaws.com/jenkins-agent:latest
@@ -50,8 +50,8 @@ pipeline {
         container('agent') {
           sh '''
             sleep 10
-            docker build -t $ECR_REGISTRY/three-tier-web:$IMAGE_TAG -f WebLayer/Dockerfile WebLayer/
-            docker build -t $ECR_REGISTRY/three-tier-app:$IMAGE_TAG -f ApplicationLayer/Dockerfile ApplicationLayer/
+            docker build -t $ECR_REGISTRY/three-tier-web:$IMAGE_TAG -f k8s/app/three-tier-web-app/WebLayer/dockerfile k8s/app/three-tier-web-app/WebLayer/
+            docker build -t $ECR_REGISTRY/three-tier-app:$IMAGE_TAG -f k8s/app/three-tier-web-app/ApplicationLayer/dockerfile k8s/app/three-tier-web-app/ApplicationLayer/
           '''
         }
       }
